@@ -1,4 +1,4 @@
-# FIR Filter for FPGA
+# FIR Filter using FPGA
 ## Problem Statement
 A moving average Finite Impulse Response (FIR) filter is a digital signal processing technique that is commonly used to remove high-frequency noise or to smooth a signal. The filter works by averaging a group of samples from the input signal and outputting the average value as the filtered output. The length of the averaging window is determined by the number of filter taps, which can be adjusted to achieve the desired level of smoothing. The advantage of the moving average FIR filter is that it is easy to implement and computationally efficient. The moving average FIR filter is a useful tool for smoothing signals, but its performance should be carefully evaluated for specific applications to ensure that the benefits outweigh any potential drawbacks.
 ## Data Information
