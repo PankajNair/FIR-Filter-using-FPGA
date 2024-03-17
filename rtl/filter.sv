@@ -29,8 +29,7 @@ output logic signed [15:0] outData
 
 logic signed [15:0] b [0:8];
 
-assign b = {16'h04F6, 16'h0AE4, 16'h1089, 16'h1496, 16'h160F,
-            16'h1496, 16'h1089, 16'h0AE4, 16'h04F6};
+assign b = {16'h0231, 16'h06ac, 16'h1249, 16'h1ecf, 16'h2433, 16'h1ecf, 16'h1249, 16'h06ac, 16'h0231};
 
 logic signed [15:0] x [0:8];
 logic signed [31:0] mul [0:8];
