@@ -31,11 +31,11 @@ filter uut(clk, reset, inData, outData);
 always
 #5 clk = ~clk;
 
-logic [15:0] RAMM [0:99];
+logic [15:0] mem [0:99];
 logic [6:0] address;
 
 initial
-$readmemb("signalBin.data", RAMM);
+     $readmemb("signalBin.data", mem);
 
 initial 
 address = 0;
@@ -49,6 +49,6 @@ begin
         address = 0;
      else
         address = address+1;
-     inData = RAMM[address];
+     inData = mem[address];
 end
 endmodule
