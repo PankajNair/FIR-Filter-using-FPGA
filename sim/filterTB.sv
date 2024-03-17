@@ -22,33 +22,73 @@
 
 module filterTB();
 
-logic clk = 0, reset;
-logic [15:0] inData;  
-logic [15:0] outData; 
+localparam cordic_period = 2;
+localparam fir_period = 10;
+localparam signed [15:0] pi_pos = 16'h6488;
+localparam signed [15:0] pi_neg = 16'h9B78;
+localparam phase_inc_2Mhz = 200;
+localparam phase_inc_30Mhz = 3000;
 
-filter uut(clk, reset, inData, outData);
+logic cordic_clk = 1'b0;
+logic fir_clk = 1'b0;
+logic phase_tvalid = 1'b0;
+logic signed [15:0] phase_2Mhz = 0;
+logic signed [15:0] phase_30Mhz = 0;
+logic sincos_2Mhz_tvalid;
+logic signed [15:0] sin_2Mhz, cos_2Mhz;
+logic sincos_30Mhz_tvalid;
+logic signed [15:0] sin_30Mhz, cos_30Mhz;
 
-always
-#5 clk = ~clk;
+logic signed [15:0] noisy_signal = 0;
+logic signed [15:0] filtered_signal;
 
-logic [15:0] mem [0:99];
-logic [6:0] address;
+cordic_0 cordic_inst_0 (
+.aclk(cordic_clk),
+.s_axis_phase_tvalid(phase_tvalid),
+.s_axis_phase_tdata(phase_2Mhz),
+.m_axis_dout_tvalid(sincos_2Mhz_tvalid),
+.m_axis_dout_tdata({sin_2Mhz, cos_2Mhz})
+);
 
-initial
-     $readmemb("signalBin.data", mem);
+cordic_0 cordic_inst_1 (
+.aclk(cordic_clk),
+.s_axis_phase_tvalid(phase_tvalid),
+.s_axis_phase_tdata(phase_30Mhz),
+.m_axis_dout_tvalid(sincos_30Mhz_tvalid),
+.m_axis_dout_tdata({sin_30Mhz, cos_30Mhz})
+);
 
-initial 
-address = 0;
-
-always
+always_ff @(posedge cordic_clk)
 begin
-     reset = 1'b0;
-     #5
-     reset = 1'b1;
-     if(address == 7'd99)
-        address = 0;
-     else
-        address = address+1;
-     inData = mem[address];
+    phase_tvalid <= 1'b1;
+    
+    if(phase_2Mhz+phase_inc_2Mhz<pi_pos)
+        phase_2Mhz <= phase_2Mhz+phase_inc_2Mhz;
+    else
+        phase_2Mhz <= pi_neg+(phase_2Mhz+phase_inc_2Mhz - pi_pos);
+    
+    if(phase_30Mhz+phase_inc_30Mhz<pi_pos)
+        phase_30Mhz <= phase_30Mhz+phase_inc_30Mhz;
+    else
+        phase_30Mhz <= pi_neg+(phase_30Mhz+phase_inc_30Mhz - pi_pos);
 end
+
+always
+    cordic_clk = #(cordic_period/2) ~cordic_clk;
+    
+always
+    fir_clk = #(fir_period/2) ~fir_clk;
+    
+always @(posedge fir_clk)
+begin
+    noisy_signal <= (sin_2Mhz+sin_30Mhz)/2;
+end
+
+filter uut(
+.clk(fir_clk), 
+.inData(noisy_signal),
+.outData(filtered_signal)
+);
+
 endmodule
+
