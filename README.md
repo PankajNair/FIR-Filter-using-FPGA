@@ -1,5 +1,5 @@
 # FIR Filter using FPGA
-The design of a 9-tap FIR with a cut-off frequency of 10 MHz and sampling frequency of 100 MHz. 
+The design of a 32-tap FIR with variable cut-off frequency and sampling frequency.
 
 Architecture:
 ![filter](https://github.com/PankajNair/FIR-Filter-using-FPGA/blob/main/filter.png)
